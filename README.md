@@ -10,10 +10,15 @@ Implementación acotada al MVP del caso de negocio HTQA (ingesta de eventos, ide
 ## Objetivo funcional
 
 - Recibir eventos vía `POST /events`.
+
 - Validar payload y encabezado `X-API-Key`.
 - Evitar duplicados recientes mediante ventana de idempotencia (TTL configurable).
 - Aplicar límites por API key (ventana y cupo configurables).
 - Clasificar severidad y programar procesamiento asíncrono para eventos críticos.
+
+## Demo
+
+![implementation](https://github.com/user-attachments/assets/f04ab853-c1ba-4a3d-91f0-f6fdb4f30a5b)
 
 ## Stack principal
 
