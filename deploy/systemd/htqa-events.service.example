@@ -1,0 +1,25 @@
+# Ejemplo de unidad systemd para una VM con Docker instalado.
+# Pasos: sudo cp htqa-events.service.example /etc/systemd/system/htqa-events.service
+#        Editar EnvironmentFile y nombre de imagen.
+#        sudo systemctl daemon-reload && sudo systemctl enable --now htqa-events
+
+[Unit]
+Description=HTQA Events API (Docker)
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+Restart=on-failure
+RestartSec=5
+EnvironmentFile=-/etc/htqa-events.env
+ExecStartPre=-/usr/bin/docker rm -f htqa-events
+ExecStart=/usr/bin/docker run --rm --name htqa-events \
+  -p 8080:8000 \
+  --env-file /etc/htqa-events.env \
+  htqa-events:latest
+ExecStop=/usr/bin/docker stop -t 30 htqa-events
+
+[Install]
+WantedBy=multi-user.target

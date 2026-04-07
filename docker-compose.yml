@@ -1,0 +1,54 @@
+# Entorno de desarrollo local: API + Postgres + Redis.
+# No usar este fichero como plantilla de producción; ver deploy/DEPLOYMENT.md.
+#
+# Requisito: copiar .env.example a .env (docker compose carga .env para sustitución
+# de variables y el servicio app usa env_file).
+
+services:
+  app:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "${COMPOSE_APP_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src:ro
+      - ./tests:/app/tests:ro
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-htqa}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-htqa_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-htqa_events}
+    ports:
+      - "${COMPOSE_POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # $$ se escapa para que el shell del contenedor expanda POSTGRES_* inyectadas arriba
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${COMPOSE_REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
