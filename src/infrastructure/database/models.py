@@ -31,9 +31,10 @@ class EventModel(Base):
             "occurred_at",
             postgresql_using="btree",
         ),
-        # Idempotency lookups: check duplicate by device_id + event_type
+        # Natural key alignment: source + device + event_type (idempotency in Redis)
         Index(
-            "idx_events_device_event",
+            "idx_events_source_device_event",
+            "source",
             "device_id",
             "event_type",
             postgresql_using="btree",

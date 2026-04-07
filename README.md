@@ -271,10 +271,11 @@ Posibles estados relevantes:
 - `409`: evento duplicado en ventana de idempotencia
 - `422`: error de validación del payload
 - `429`: límite de tasa excedido
+- `503`: Redis indisponible (idempotencia no puede completarse de forma segura)
 
 ## Notas operativas
 
-- **Idempotencia:** se usa una ventana temporal (TTL, por defecto 300s) para evitar duplicados por `device_id + event_type`.
+- **Idempotencia:** se usa una ventana temporal (TTL, por defecto 300s) para evitar duplicados por `source + device_id + event_type`.
 - **Rate limit:** ventana fija con contador en Redis (`INCR` + `EXPIRE` por clave de API key; cupo y segundos de ventana configurables; por defecto 100 requests / 60s).
 - **Clasificación de severidad** (`SeverityClassifier`, reglas en orden): `metric_value` ≥ 100 → CRITICAL, ≥ 50 → HIGH; `event_type` que termina en `_down` o contiene `offline` → CRITICAL (incluye el payload de referencia con `device_down`); palabras en `event_type` (error/failure → HIGH; warning/degraded → MEDIUM); `metadata.priority` (critical/high); si no aplica ninguna regla → LOW.
 - **Procesamiento crítico:** eventos clasificados como `CRITICAL` disparan una tarea en background para notificación/procesamiento adicional.

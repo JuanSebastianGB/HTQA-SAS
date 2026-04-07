@@ -26,7 +26,9 @@ class StubEventService:
             return False, 101
         return True, 1
 
-    async def check_idempotency(self, device_id: str, event_type: str) -> tuple[bool, str | None]:
+    async def check_idempotency(
+        self, source: str, device_id: str, event_type: str
+    ) -> tuple[bool, str | None]:
         if self.duplicate_id is not None:
             return True, self.duplicate_id
         return False, None

@@ -37,9 +37,11 @@ class EventService:
         """Check rate limit for API key."""
         return await self._rate_limiter_svc.check_limit(api_key)
 
-    async def check_idempotency(self, device_id: str, event_type: str) -> tuple[bool, str | None]:
+    async def check_idempotency(
+        self, source: str, device_id: str, event_type: str
+    ) -> tuple[bool, str | None]:
         """Check if event is duplicate."""
-        return await self._idempotency_svc.check_and_store(device_id, event_type)
+        return await self._idempotency_svc.check_and_store(source, device_id, event_type)
 
     async def create_event(
         self, dto: EventCreateDTO, background_tasks: "BackgroundTasks"
@@ -68,7 +70,7 @@ class EventService:
 
         # Mark idempotency as completed
         await self._idempotency_svc.mark_completed(
-            dto.device_id, dto.event_type, str(created_event.id)
+            dto.source, dto.device_id, dto.event_type, str(created_event.id)
         )
 
         # Schedule background processing for critical events

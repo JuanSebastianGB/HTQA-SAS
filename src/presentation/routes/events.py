@@ -50,7 +50,7 @@ async def create_event(
 
         # 2. Idempotency check
         is_duplicate, existing_id = await event_service.check_idempotency(
-            event_dto.device_id, event_dto.event_type
+            event_dto.source, event_dto.device_id, event_dto.event_type
         )
         if is_duplicate:
             raise HTTPException(

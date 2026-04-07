@@ -45,7 +45,7 @@ graph TB
 
     ES -->|"5. check_rate_limit"| RLS
     RLS --> Redis
-    ES -->|"6. check_idempotency<br/>device_id + event_type"| IS
+    ES -->|"6. check_idempotency<br/>source + device_id + event_type"| IS
     IS --> Redis
     ES -->|"7. classify<br/>event_type + metric_value + metadata"| SC
     SC -->|"Severity enum"| Event
@@ -117,8 +117,8 @@ sequenceDiagram
     ES->>Redis: fixed-window counter (INCR + EXPIRE)
     Redis-->>ES: allowed=true
 
-    Route->>ES: check_idempotency(device_id, event_type)
-    ES->>Redis: SETNX idempotency:{device_id}:{event_type} "pending" EX 300
+    Route->>ES: check_idempotency(source, device_id, event_type)
+    ES->>Redis: SETNX idempotency:{source}:{device_id}:{event_type} "pending" EX 300
     Redis-->>ES: was_set=true (not duplicate)
 
     Route->>ES: create_event(EventCreateDTO, background_tasks)
@@ -133,7 +133,7 @@ sequenceDiagram
     DB-->>Repo: event_id = UUID
     Repo-->>ES: Event (persisted)
 
-    ES->>Redis: SET idempotency:{device_id}:{event_type} event_id EX 300
+    ES->>Redis: SET idempotency:{source}:{device_id}:{event_type} event_id EX 300
 
     alt Severity == CRITICAL
         ES->>BG: add_task(_process_critical_event, event_id)
@@ -260,13 +260,13 @@ graph TB
     Main -->|"redis.asyncio"| RD
 
     subgraph DB_Tables["PostgreSQL Tables"]
-        Events["events<br/>• id, source, customer_id<br/>• device_id, event_type<br/>• occurred_at, metric_value<br/>• metadata (JSON)<br/>• severity, status<br/>• created_at<br/>Indexes: severity+occurred_at,<br/>device_id+event_type,<br/>customer_id+created_at"]
+        Events["events<br/>• id, source, customer_id<br/>• device_id, event_type<br/>• occurred_at, metric_value<br/>• metadata (JSON)<br/>• severity, status<br/>• created_at<br/>Indexes: severity+occurred_at,<br/>source+device_id+event_type,<br/>customer_id+created_at"]
         AuditLogs["audit_logs<br/>• id, timestamp<br/>• api_key (sanitized)<br/>• method, path<br/>• status_code, ip_address<br/>• created_at"]
     end
 
     subgraph Redis_Keys["Redis Keys"]
         RateLimit["rate_limit:{api_key}<br/>INCR + EXPIRE (ventana fija)"]
-        Idempotency["idempotency:{device_id}:{event_type}<br/>Value: event_id or 'pending'<br/>TTL: 300 seconds"]
+        Idempotency["idempotency:{source}:{device_id}:{event_type}<br/>Value: event_id or 'pending'<br/>TTL: 300 seconds"]
     end
 
     PG --> Events

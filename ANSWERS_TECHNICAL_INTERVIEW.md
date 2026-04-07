@@ -37,7 +37,7 @@ Validado por `EventCreateDTO` (Pydantic) con campos obligatorios: `source`, `cus
 
 **Validación:** Pydantic DTO con `min_length`, `max_length`, tipos estrictos. Campo `metadata` opcional con default `{}`.
 
-**Manejo de errores:** `HTTPException` con códigos de estado documentados: 202, 401, 409, 422, 429.
+**Manejo de errores:** `HTTPException` con códigos de estado documentados: 202, 401, 409, 422, 429, 503 (p. ej. Redis indisponible para idempotencia).
 
 **Logging:** `logging.basicConfig` en `main.py` + AuditMiddleware captura cada request.
 
@@ -47,9 +47,9 @@ Validado por `EventCreateDTO` (Pydantic) con campos obligatorios: `source`, `cus
 
 ### 4.2 Idempotencia (CRÍTICO)
 
-**Estrategia:** Redis con clave `idempotency:{device_id}:{event_type}`, TTL de 300 s (5 min). Operación atómica `SETNX` (`nx=True, ex=ttl`) en un solo comando Redis — no hay check-then-create separado.
+**Estrategia:** Redis con clave `idempotency:{source}:{device_id}:{event_type}`, TTL de 300 s (5 min). Incluye `source` para alinear la deduplicación con el origen del evento (el mismo dispositivo y tipo desde otro origen no se considera duplicado). Operación atómica `SETNX` (`nx=True, ex=ttl`) en un solo comando Redis — no hay check-then-create separado.
 
-**Manejo de concurrencia:** Redis es single-threaded, `SETNX` es atómico por naturaleza. Dos requests concurrentes con el mismo `device_id` + `event_type`: solo uno gana; el otro recibe 409 Conflict.
+**Manejo de concurrencia:** Redis es single-threaded, `SETNX` es atómico por naturaleza. Dos requests concurrentes con el mismo `source` + `device_id` + `event_type`: solo uno gana; el otro recibe 409 Conflict.
 
 **Flujo:** `check_and_store` → si la clave no existe, la crea con valor "pending" → persiste evento → `mark_completed` actualiza con el `event_id` real.
 
@@ -200,8 +200,8 @@ Implementada en `SQLAlchemyEventRepository.get_critical_events(hours=24)`.
 -- Compuesto para query de 24h (severity + tiempo en un solo seek)
 CREATE INDEX idx_events_severity_occurred_at ON events (severity, occurred_at);
 
--- Lookup de idempotencia e historial por dispositivo
-CREATE INDEX idx_events_device_event ON events (device_id, event_type);
+-- Lookup por clave natural (origen + dispositivo + tipo)
+CREATE INDEX idx_events_source_device_event ON events (source, device_id, event_type);
 
 -- Consultas multi-tenant por cliente
 CREATE INDEX idx_events_customer_created ON events (customer_id, created_at);
