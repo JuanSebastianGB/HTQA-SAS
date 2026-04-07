@@ -1,8 +1,5 @@
 """Redis cache repository implementation."""
 
-import json
-from typing import Any
-
 from redis.asyncio import Redis
 
 from src.domain.ports.repository import CacheRepository

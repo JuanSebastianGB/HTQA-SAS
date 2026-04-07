@@ -1,6 +1,5 @@
 """Unit tests for Event entity."""
 
-import pytest
 from datetime import UTC, datetime
 from uuid import UUID
 

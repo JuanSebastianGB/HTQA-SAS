@@ -8,7 +8,6 @@ from fastapi import BackgroundTasks, FastAPI
 from fastapi.testclient import TestClient
 
 from src.application.dto.event_dto import EventCreateDTO, EventResponseDTO
-from src.application.services.event_service import EventService
 from src.presentation.dependencies.auth import get_api_key, get_event_service
 from src.presentation.routes.events import router as events_router
 from src.presentation.routes.health import router as health_router

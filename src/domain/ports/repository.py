@@ -1,7 +1,6 @@
 """Repository port interfaces for domain layer."""
 
 from abc import ABC, abstractmethod
-from typing import Any
 from uuid import UUID
 
 from src.domain.entities.event import Event

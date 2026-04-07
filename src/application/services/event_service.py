@@ -1,10 +1,15 @@
 """Event service - orchestrates event processing."""
 
+from __future__ import annotations
+
 import logging
-from datetime import datetime
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.application.dto.event_dto import EventCreateDTO, EventResponseDTO
+
+if TYPE_CHECKING:
+    from fastapi import BackgroundTasks
 from src.application.services.idempotency_service import IdempotencyService
 from src.application.services.notification_service import NotificationService
 from src.application.services.rate_limiter_service import RateLimiterService
@@ -44,7 +49,7 @@ class EventService:
         return await self._idempotency_svc.check_and_store(source, device_id, event_type)
 
     async def create_event(
-        self, dto: EventCreateDTO, background_tasks: "BackgroundTasks"
+        self, dto: EventCreateDTO, background_tasks: BackgroundTasks
     ) -> EventResponseDTO:
         """Create a new event with background processing."""
         # Classify severity
@@ -124,8 +129,5 @@ class EventService:
             created_at=event.created_at,
         )
 
-
-# Type alias for BackgroundTasks
-from fastapi import BackgroundTasks
 
 EventRepository = "EventRepository"

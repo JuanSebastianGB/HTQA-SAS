@@ -11,7 +11,7 @@ from src.application.services.idempotency_service import IdempotencyService
 from src.application.services.notification_service import NotificationService
 from src.application.services.rate_limiter_service import RateLimiterService
 from src.application.services.severity_classifier import SeverityClassifier
-from src.infrastructure.database.session import DatabaseSession, get_db_session
+from src.infrastructure.database.session import get_db_session
 from src.infrastructure.notifications.email_notifier import MockEmailNotifier
 from src.infrastructure.repositories.cache_repository import RedisCacheRepository
 from src.infrastructure.repositories.event_repository import SQLAlchemyEventRepository
@@ -22,7 +22,6 @@ _redis_client: Redis | None = None
 
 def get_redis() -> Redis:
     """Get Redis client."""
-    global _redis_client
     if _redis_client is None:
         raise RuntimeError("Redis client not initialized")
     return _redis_client

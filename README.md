@@ -28,6 +28,7 @@ Implementación acotada al MVP del caso de negocio HTQA (ingesta de eventos, ide
 - Redis (cache, idempotencia, rate limit)
 - Pydantic v2 + pydantic-settings
 - Pytest + pytest-asyncio + pytest-cov + httpx
+- Black + Flake8 (desarrollo; configuración en `black.toml` y `.flake8`)
 - Gestor de entorno/dependencias local: `uv`
 
 ## Arquitectura y estructura clave
@@ -48,6 +49,7 @@ HTQA-SAS/
 ├── Dockerfile.prod              # Imagen producción (multi-stage)
 ├── docker-compose.yml           # Dev local (variables desde .env)
 ├── .env.example                 # Variables de entorno de referencia
+├── black.toml / .flake8         # Estilo de código (Black / Flake8)
 └── pyproject.toml               # Dependencias y configuración de tests
 ```
 
@@ -189,15 +191,21 @@ Con cobertura:
 uv run pytest --cov=src --cov-report=term-missing
 ```
 
-## Formateo de código (Black)
+## Lint y formato (Flake8 + Black)
 
-Formatea todo el proyecto usando la configuración de `black.toml`:
+Análisis estático (misma longitud de línea que Black, 100 caracteres):
+
+```bash
+uv run flake8 src/ tests/
+```
+
+Formateo con la configuración de `black.toml`:
 
 ```bash
 uvx black --config black.toml .
 ```
 
-Si Black ya está instalado en dependencias de desarrollo:
+Si las herramientas ya están en el entorno de desarrollo (`uv sync --dev`):
 
 ```bash
 uv run black --config black.toml .

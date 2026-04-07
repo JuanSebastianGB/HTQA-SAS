@@ -1,0 +1,6 @@
+[flake8]
+max-line-length = 100
+extend-ignore = E203
+# Re-exports intencionales en paquetes
+per-file-ignores =
+    */__init__.py:F401

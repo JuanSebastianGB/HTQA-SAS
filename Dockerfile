@@ -15,9 +15,8 @@ COPY pyproject.toml .
 # Install dependencies
 RUN pip install --no-cache-dir -e .
 
-# Copy source code
+# Copy source code (tests no se copian: están en .dockerignore; en Compose se montan con volumen)
 COPY src ./src
-COPY tests ./tests
 # Copy alembic if it exists (using shell form to handle missing directory)
 RUN if [ -d alembic ]; then cp -r alembic ./alembic; fi || true
 # Copy .env.example if it exists (using shell form to handle missing file)

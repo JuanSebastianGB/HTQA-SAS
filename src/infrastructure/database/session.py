@@ -64,7 +64,6 @@ _db_session: DatabaseSession | None = None
 
 def get_db_session() -> DatabaseSession:
     """Get global database session instance."""
-    global _db_session
     if _db_session is None:
         raise RuntimeError("Database session not initialized")
     return _db_session

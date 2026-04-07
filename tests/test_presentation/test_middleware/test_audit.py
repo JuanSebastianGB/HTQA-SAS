@@ -108,7 +108,7 @@ class TestAuditMiddlewareDispatch:
             call_next = AsyncMock()
             call_next.return_value = MagicMock(status_code=200, headers={})
 
-            response = await middleware.dispatch(mock_request, call_next)
+            await middleware.dispatch(mock_request, call_next)
 
             call_next.assert_called()
 

@@ -181,7 +181,7 @@ class TestGetCriticalEvents:
         mock_result.scalars.return_value.all.return_value = []
         mock_session.execute.return_value = mock_result
 
-        result = await event_repo.get_critical_events(hours=24, limit=10)
+        await event_repo.get_critical_events(hours=24, limit=10)
 
         # Verify limit was passed in query
         call_args = mock_session.execute.call_args

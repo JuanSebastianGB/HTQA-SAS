@@ -1,7 +1,6 @@
 """Event repository implementation using SQLAlchemy."""
 
 from datetime import UTC, datetime, timedelta
-from typing import Any
 from uuid import UUID
 
 from sqlalchemy import select
