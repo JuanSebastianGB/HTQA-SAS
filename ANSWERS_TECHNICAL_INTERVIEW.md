@@ -224,34 +224,6 @@ CREATE TABLE events_p_2026_04 PARTITION OF events
     FOR VALUES FROM ('2026-04-01T00:00:00+00:00') TO ('2026-05-01T00:00:00+00:00');
 ```
 
-
----
-
-## 10. Entregables
-
-| Entregable | Estado | Ubicación |
-|-----------|--------|-----------|
-| Repositorio Git | ✅ | `HTQA-SAS/.git/` |
-| README | ✅ | `HTQA-SAS/README.md` |
-| Código | ✅ Clean Architecture | `HTQA-SAS/src/` |
-| Pruebas | ✅ pytest + pytest-asyncio | `HTQA-SAS/tests/` |
-| Docker Compose (desarrollo) | ✅ | `HTQA-SAS/docker-compose.yml` |
-| Producción (Docker sin Compose) | ✅ | `HTQA-SAS/Dockerfile.prod`, `HTQA-SAS/gunicorn.conf.py`, `HTQA-SAS/deploy/DEPLOYMENT.md`, `HTQA-SAS/deploy/nginx/nginx.conf.example` |
-| .env.example | ✅ | `HTQA-SAS/.env.example` |
-
----
-
-## 11. Criterios de Evaluación
-
-| Criterio | Peso | Estado | Evidencia |
-|----------|------|--------|-----------|
-| **Diseño** | 25% | ✅ Parcial-alto | Arquitectura por capas, SOLID aplicado en MVP |
-| **Código** | 20% | ✅ | Validación Pydantic, type hints, tests por capa |
-| **Arquitectura** | 20% | ✅ Parcial-alto | Async; Compose para dev; producción con `Dockerfile.prod` + Gunicorn/`uvicorn.workers.UvicornWorker` y guía `deploy/DEPLOYMENT.md` (sin Compose en servidor ni Nginx dentro de la imagen); resiliencia en aplicación (fail-open rate limit, fallback de idempotencia con 503, shutdown ordenado); manifiestos K8s/ECS no incluidos (referencia en doc de despliegue) |
-| **Seguridad** | 20% | ✅ Parcial-alto | API key, validación, rate limiting, sanitización, auditoría |
-| **Datos** | 10% | ✅ Parcial-alto | Query crítica, índices (incl. parcial `idx_events_critical_recent`), partición RANGE mensual y PK compuesta en modelo; DDL idempotente de particiones al crear tablas |
-| **Comunicación** | 5% | ✅ | README, código documentado, respuestas concisas |
-
 ---
 
 *HTQA S.A.S. — Prueba Técnica Desarrollador Senior Python*
